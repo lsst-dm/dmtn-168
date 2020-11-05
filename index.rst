@@ -53,6 +53,10 @@
 .. Add content here.
 .. Do not include the document title (it's automatically added from metadata.yaml).
 
+  Introduction
+  ============
+
+
 .. .. rubric:: References
 
 .. Make in-text citations with: :cite:`bibkey`.
