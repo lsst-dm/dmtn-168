@@ -62,7 +62,7 @@
 Introduction
 ============
 The PanDA (Production ANd Distributed Analysis) is a multi-component workload management system for distributed (GRID
-based), Cloud, or HPC computing. PanDA based systems usually include few leveraged systems such as:
+based), Cloud, or HPC computing. PanDA based setups usually include few leveraged components such as:
 
 - PanDA server + JEDI [PanDA_twiki]_, [PanDA_paper]_
 - JEDI system [JEDI_twiki]_
