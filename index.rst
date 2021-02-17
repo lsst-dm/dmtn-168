@@ -99,7 +99,7 @@ In this exercise we have intensively used results of both ATLAS Google POC [atla
   from the Storage Element (SE), executing the payload, uploading the output to the SE, and sending the final job 
   status to the PanDA server. And pilot jobs are started by pilot-starter jobs, which are provided by the Harvester.
   Currently there are many dependencies of ATLAS and CVMFS in the env setup necessary to run the pilot jobs and authenticate 
-  them to pull payload jobs from the PanDA server. We are examining/removing these dependencies, and integrate the minimum 
+  them to pull payload jobs from the PanDA server. We are examining/removing those dependencies, and integrate the minimum 
   OSG stack software into a container. The pilot test is debugged on Google GCP with simple commands, then with lsst jobs 
   interactively. If necessary, some tunings would be made in the pilot code. After that, we will test it on the Google 
   kubernetes cluster.
