@@ -17,7 +17,8 @@ doc_title: "Running Science Pipelines using PanDA"
 
 # Author names, ordered as a list. Each author name should be formatted as 'First Last'
 authors:
-  - "Hsin-Fang Chiang"
+  - "Sergey Padolski"
+  - "Shuwei Ye"
 
 # Current document revision date, YYYY-MM-DD
 # Only set this field if you need to manually fix the revision date;
