@@ -156,7 +156,7 @@ The POD nodes run in the pilot/Rubin container, for example, *us.gcr.io/panda-de
 
  wget https://storage.googleapis.com/drp-us-central1-containers/pilots_starter_d3.py; chmod 755 ./pilots_starter_d3.py; ./pilots_starter_d3.py
 
-It will download `the pilot package <https://github.com/PanDAWMS/pilot2>`_ and run the pilot job. The pilot job uses the provided job definition in case of **PUSH** mode, or will get job definition in case of **PULL** mode. Then the pilot job runs the provided payload job. In case of **PULL** mode, one pilot job could get and run multiple payload jobs one by one. After the payload job finishes, the pilot will write the payload job log file into `the Google Cloud Storage <https://storage.googleapis.com/drp-us-central1-logging/>`_, and will update the job status, as shown below:
+It will download `the pilot package <https://github.com/PanDAWMS/pilot2>`_ and run the pilot job. The pilot job will first get the corresponding PanDA queue configuration and the associated storage ddmendpoint (*RSE*) configuration from `the CRIC information system <http://atlas-cric.cern.ch/>`_. The pilot job uses the provided job definition in case of **PUSH** mode, or will get job definition in case of **PULL** mode. Then the pilot job runs the provided payload job. In case of **PULL** mode, one pilot job could get and run multiple payload jobs one by one. After the payload job finishes, the pilot will write the payload job log file into `the Google Cloud Storage <https://storage.googleapis.com/drp-us-central1-logging/>`_, which is defined in the PanDA queue and RSE configuration, and will update the job status, as shown below:
 
 .. figure:: /_static/Jobs-done.jpg
      :name: Finished PanDA jobs
