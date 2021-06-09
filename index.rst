@@ -125,6 +125,50 @@ Where were additional improvements of JEDI and iDDS core but they were done into
 a custom built Docker image of Rubin software. We performed debugging which required deployment a custom wrapping
 scripts this is why we worked with custom built images however we are going to switch them to the official releases.
 
+Job Run Procedure in PanDA
+==========================
+
+The PanDA system is overviewed in the following graph:
+
+.. figure:: /_static/PandaSys.png
+     :name: PanDA system overview
+
+Job Submission
+--------------
+
+The LSST job tasks are submitted to the PanDA server https://ai-idds-01.cern.ch:25443/server/panda through `the bps plugin <https://github.com/lsst/ctrl_bps>`_. Each task could be composed of many payload jobs. The PanDA server registers those tasks in the central database. `The PanDA monitoring page <https://panda-doma.cern.ch/user/>`_ will show the tasks in the status of "registered", as shown below:
+
+.. figure:: /_static/Jobs-registered.jpg
+     :name: Registered PanDA jobs
+
+Job Starting
+------------
+
+`The harvester server <https://github.com/HSF/harvester>`_, *ai-idds-02.cern.ch*, is continuously querying the PanDA server about the number of jobs to run, then triggers the corresponding GKE cluster to start up the needed POD nodes. At this moment, those tasks/jobs status will be changed into *running*, as shown below:
+
+.. figure:: /_static/Jobs-running.jpg
+     :name: Running PanDA jobs
+
+Job Running
+-----------
+
+The POD nodes run in the pilot/Rubin container, for example, *us.gcr.io/panda-dev-1a74/centos:7-stack-lsst_distrib-w_2021_21_osg_d3*, as configured in the GKE cluster. The jobs on the POD nodes run the following commands in bash inside the container::
+
+ wget https://storage.googleapis.com/drp-us-central1-containers/pilots_starter_d3.py; chmod 755 ./pilots_starter_d3.py; ./pilots_starter_d3.py
+
+It will download `the pilot package <https://github.com/PanDAWMS/pilot2>`_ and run the pilot job. The pilot job uses the provided job definition in case of **PUSH** mode, or will get job definition in case of **PULL** mode. Then the pilot job runs the provided payload job. In case of **PULL** mode, one pilot job could get and run multiple payload jobs one by one. After the payload job finishes, the pilot will write the payload job log file into `the Google Cloud Storage <https://storage.googleapis.com/drp-us-central1-logging/>`_, and will update the job status, as shown below:
+
+.. figure:: /_static/Jobs-done.jpg
+     :name: Finished PanDA jobs
+
+If the jobs have not finished successfully, the job status would be *failed*.
+
+Job Monitoring
+--------------
+
+Users can visit the PanDA monitoring server, `https://panda-doma.cern.ch/user/ <https://panda-doma.cern.ch/user/>`_, to check the job status. The PanDA server fetches the job information from the central database. The monitoring page first shows the summary of user tasks. Click on the task IDs will go into the details of each task, then click on the number under the job status such as *running*, *finished*, or *failed*, will show the list of jobs in that status. You can check each job details by following *the PanDA ID number*.
+
+
 Workflow generation
 ===================
 
