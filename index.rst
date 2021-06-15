@@ -131,10 +131,19 @@ GKE Clusters and GCS Buckets
 GKE Clusters
 ------------
 
-In the project of *panda-dev-1a74*, we defined 2 large kubernetes production clusters, *moderatemem* and *highmem*, and one small GKE test cluster, *developmentcluster*. All clusters are deployed using `Terraform <https://learn.hashicorp.com/collections/terraform/gcp-get-started>`_. The deployment details can be found `here <https://github.com/lsst/idf_deploy>`_.
+In the project of *panda-dev-1a74*, we defined two large kubernetes (GKE) production clusters, *moderatemem* and *highmem*, and one small GKE test cluster, *developmentcluster*. All clusters are deployed using `Terraform <https://learn.hashicorp.com/collections/terraform/gcp-get-started>`_. The deployment details can be found `here <https://github.com/lsst/idf_deploy>`_.
 
 GCS Buckets
 -----------
+
+In the Google Cloud Storage (GCS), we defined two buckets, *drp-us-central1-containers* and *drp-us-central1-logging*, as shown below:
+
+.. figure:: /_static/GCS_Buckets-in-Rubin.jpg
+     :name: List of buckets in the project
+     
+The 3rd bucket in the name of "us.artifacts.*", was automatically created in the Google Cloud Build, to store the build container images.
+
+As the bucket name indicates, the bucket *drp-us-central1-containers* accommodate container image files, the pilot-related files and panda queue confiuration files. The other bucket drp-us-central1-logging* stores the log files of pilot and payload jobs.
 
 Job Run Procedure in PanDA
 ==========================
