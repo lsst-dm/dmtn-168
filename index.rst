@@ -131,7 +131,7 @@ GKE Clusters and GCS Buckets
 GKE Clusters
 ------------
 
-We defined 2 large GKE production clusters, *moderatemem* and *highmem*, and one small GKE test cluster, *developmentcluster*. All clusters are deployed using `Terraform <https://learn.hashicorp.com/collections/terraform/gcp-get-started>`_. The deployment details can be found `here <https://github.com/lsst/idf_deploy>`_.
+In the project of *panda-dev-1a74*, we defined 2 large kubernetes production clusters, *moderatemem* and *highmem*, and one small GKE test cluster, *developmentcluster*. All clusters are deployed using `Terraform <https://learn.hashicorp.com/collections/terraform/gcp-get-started>`_. The deployment details can be found `here <https://github.com/lsst/idf_deploy>`_.
 
 GCS Buckets
 -----------
@@ -174,7 +174,7 @@ It will download `the pilot package <https://github.com/PanDAWMS/pilot2>`_ and r
 
 If the jobs have not finished successfully, the job status would be *failed*.
 
-The pilot communication with the PanDA server is authenticated with a valid grid proxy, which is passed to the container through POD. Similarly, a json file of the GCS bucket access service account is passed to the container, in order to write/access to the GCS bucket in the python client for the Google Cloud Storage.
+The pilot communication with the PanDA server is authenticated with a valid grid proxy, which is passed to the container through POD. Similarly, a credential json file of the GCS bucket access service account is passed to the container, in order to write/access to the GCS bucket in the python client for the Google Cloud Storage.
 
 Job Monitoring
 --------------
