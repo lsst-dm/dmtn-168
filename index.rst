@@ -125,6 +125,17 @@ Where were additional improvements of JEDI and iDDS core but they were done into
 a custom built Docker image of Rubin software. We performed debugging which required deployment a custom wrapping
 scripts this is why we worked with custom built images however we are going to switch them to the official releases.
 
+GKE Clusters and GCS Buckets
+============================
+
+GKE Clusters
+------------
+
+We defined 2 large GKE production clusters, *moderatemem* and *highmem*, and one small GKE test cluster, *developmentcluster*. All clusters are deployed using `Terraform <https://learn.hashicorp.com/collections/terraform/gcp-get-started>`_. The deployment details can be found `here <https://github.com/lsst/idf_deploy>`_.
+
+GCS Buckets
+-----------
+
 Job Run Procedure in PanDA
 ==========================
 
@@ -156,12 +167,14 @@ The POD nodes run in the pilot/Rubin container, for example, *us.gcr.io/panda-de
 
  wget https://storage.googleapis.com/drp-us-central1-containers/pilots_starter_d3.py; chmod 755 ./pilots_starter_d3.py; ./pilots_starter_d3.py
 
-It will download `the pilot package <https://github.com/PanDAWMS/pilot2>`_ and run the pilot job. The pilot job will first get the corresponding PanDA queue configuration and the associated storage ddmendpoint (*RSE*) configuration from `the CRIC information system <http://atlas-cric.cern.ch/>`_. The pilot job uses the provided job definition in case of **PUSH** mode, or will get job definition in case of **PULL** mode. Then the pilot job runs the provided payload job. In case of **PULL** mode, one pilot job could get and run multiple payload jobs one by one. After the payload job finishes, the pilot will write the payload job log file into `the Google Cloud Storage <https://storage.googleapis.com/drp-us-central1-logging/>`_, which is defined in the PanDA queue and RSE configuration, and will update the job status, as shown below:
+It will download `the pilot package <https://github.com/PanDAWMS/pilot2>`_ and run the pilot job. The pilot job will first get the corresponding PanDA queue configuration and the associated storage ddmendpoint (*RSE*) configuration from `the CRIC information system <http://atlas-cric.cern.ch/>`_. The pilot job uses the provided job definition in case of **PUSH** mode, or will get job definition in case of **PULL** mode. Then the pilot job runs the provided payload job. In case of **PULL** mode, one pilot job could get and run multiple payload jobs one by one. After the payload job finishes, the pilot will write the payload job log file into `the Google Cloud Storage bucket <https://storage.googleapis.com/drp-us-central1-logging/>`_, which is defined in the PanDA queue and RSE configuration, and will update the job status, as shown below:
 
 .. figure:: /_static/Jobs-done.jpg
      :name: Finished PanDA jobs
 
 If the jobs have not finished successfully, the job status would be *failed*.
+
+The pilot communication with the PanDA server is authenticated with a valid grid proxy, which is passed to the container through POD. Similarly, a json file of the GCS bucket access service account is passed to the container, in order to write/access to the GCS bucket in the python client for the Google Cloud Storage.
 
 Job Monitoring
 --------------
