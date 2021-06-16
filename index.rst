@@ -136,14 +136,16 @@ In the project of *panda-dev-1a74*, we defined two large kubernetes (GKE) produc
 GCS Buckets
 -----------
 
-In the Google Cloud Storage (GCS), we defined two buckets, *drp-us-central1-containers* and *drp-us-central1-logging*, as shown below:
+In the Google Cloud Storage (GCS), we defined two buckets, **drp-us-central1-containers** and **drp-us-central1-logging**, as shown below:
 
 .. figure:: /_static/GCS_Buckets-in-Rubin.jpg
      :name: List of buckets in the project
      
 The 3rd bucket in the name of "us.artifacts.*", was automatically created in the Google Cloud Build, to store the build container images.
 
-As the bucket name indicates, the bucket *drp-us-central1-containers* accommodate container image files, the pilot-related files and panda queue confiuration files. The other bucket drp-us-central1-logging* stores the log files of pilot and payload jobs.
+As the bucket name indicates, the bucket **drp-us-central1-containers** accommodate container image files, the pilot-related files and panda queue confiuration files. The other bucket **drp-us-central1-logging** stores the log files of pilot and payload jobs.
+
+The logging bucket is configured in *Uniform* access mode, allowing public access, and allowing a special service account **gcs-access** with the permission of **roles/storage.legacyBucketWriter** and **roles/storage.legacyObjectReader**. The credential json file of this special service account is generated, and passed to the container on the POD nodes, with the environmental variable **GOOGLE_APPLICATION_CREDENTIAL** pointing to the json file.
 
 Job Run Procedure in PanDA
 ==========================
@@ -176,7 +178,7 @@ The POD nodes run in the pilot/Rubin container, for example, *us.gcr.io/panda-de
 
  wget https://storage.googleapis.com/drp-us-central1-containers/pilots_starter_d3.py; chmod 755 ./pilots_starter_d3.py; ./pilots_starter_d3.py
 
-It will download `the pilot package <https://github.com/PanDAWMS/pilot2>`_ and run the pilot job. The pilot job will first get the corresponding PanDA queue configuration and the associated storage ddmendpoint (*RSE*) configuration from `the CRIC information system <http://atlas-cric.cern.ch/>`_. The pilot job uses the provided job definition in case of **PUSH** mode, or will get job definition in case of **PULL** mode. Then the pilot job runs the provided payload job. In case of **PULL** mode, one pilot job could get and run multiple payload jobs one by one. After the payload job finishes, the pilot will write the payload job log file into `the Google Cloud Storage bucket <https://storage.googleapis.com/drp-us-central1-logging/>`_, which is defined in the PanDA queue and RSE configuration, and will update the job status, as shown below:
+It will download `the pilot package <https://github.com/PanDAWMS/pilot2>`_ and run the pilot job. The pilot job will first get the corresponding PanDA queue configuration and the associated storage ddmendpoint (*RSE*) configuration from `the CRIC information system <http://atlas-cric.cern.ch/>`_. The pilot job uses the provided job definition in case of **PUSH** mode, or will get job definition in case of **PULL** mode. Then the pilot job runs the provided payload job. In case of **PULL** mode, one pilot job could get and run multiple payload jobs one by one. After the payload job finishes, the pilot will use `the pilot client for GCS <https://googleapis.dev/python/storage/latest/index.html>`_ write the payload job log file into `the Google Cloud Storage bucket <https://storage.googleapis.com/drp-us-central1-logging/>`_, which is defined in the PanDA queue and RSE configuration. Then the pilot will update the job status including the public access URL to the log files, as shown below:
 
 .. figure:: /_static/Jobs-done.jpg
      :name: Finished PanDA jobs
