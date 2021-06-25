@@ -151,7 +151,15 @@ For the production queues, the commands inside the container are passed to *"bas
 
  whoami;cd /tmp;export ALRB_noGridMW=NO; wget https://storage.googleapis.com/drp-us-central1-containers/pilots_starter_d3.py; chmod 755 ./pilots_starter_d3.py; ./pilots_starter_d3.py || true
 
-It will download `the pilot package <https://github.com/PanDAWMS/pilot2>`_ and start a new pilot job. 
+It will download `the pilot package <https://github.com/PanDAWMS/pilot2>`_ and start a new pilot job.
+
+For debugging purpose, a POD node can be created independently with a test yaml file. But remember to use a different metadata name, says, *test-job*, in the yaml file. For example::
+
+ kubectl create -f test.yaml
+ kubectl get pods -l job-name=test-job
+ kubectl exec -it $podName -- /bin/bash 
+ 
+which creates a pod in the job-name of test-job, and enters to the container on that POD to debug, where $podName is the POD name found on the command "*kubectl get pods*".
 
 GCS Buckets
 -----------
