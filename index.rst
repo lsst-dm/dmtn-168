@@ -191,7 +191,10 @@ The PanDA system is overviewed in the following graph:
 Job Submission
 --------------
 
-The LSST job tasks are submitted to the PanDA server https://ai-idds-01.cern.ch:25443/server/panda through `the bps plugin <https://github.com/lsst/ctrl_bps>`_. Each task could be composed of many payload jobs. The PanDA server registers those tasks in the central database. `The PanDA monitoring page <https://panda-doma.cern.ch/user/>`_ will show the tasks in the status of "registered", as shown below:
+As described in `the PanDA Orchestration User Guide <https://docs.google.com/document/d/1J0Dxe_TJoIpWQm_izBY4Cz6mWkgLCVTZB6pZxkjS0Gg/view>`_, 
+the LSST job tasks are defined a `configuration YAML file <https://pipelines.lsst.io/v/w_2021_24/modules/lsst.ctrl.bps/quickstart.html#bps-configuration-file>`_, 
+and are submitted to the PanDA server https://ai-idds-01.cern.ch:25443/server/panda through `the bps plugin <https://github.com/lsst/ctrl_bps>`_.
+Each task could be composed of many payload jobs. The PanDA server registers those tasks in the central database. `The PanDA monitoring page <https://panda-doma.cern.ch/user/>`_ will show the tasks in the status of *registered*, as shown below:
 
 .. figure:: /_static/Jobs-registered.jpg
      :name: Registered PanDA jobs
