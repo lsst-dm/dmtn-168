@@ -125,13 +125,31 @@ Where were additional improvements of JEDI and iDDS core but they were done into
 a custom built Docker image of Rubin software. We performed debugging which required deployment a custom wrapping
 scripts this is why we worked with custom built images however we are going to switch them to the official releases.
 
-GKE Clusters and GCS Buckets
-============================
+PanDA Queues o GKE Clusters and GCS Buckets
+===========================================
 
 GKE Clusters
 ------------
 
-In the project of *panda-dev-1a74*, we defined two large kubernetes (GKE) production clusters, *moderatemem* and *highmem*, and one small GKE test cluster, *developmentcluster*. All clusters are deployed using `Terraform <https://learn.hashicorp.com/collections/terraform/gcp-get-started>`_. The deployment details can be found `here <https://github.com/lsst/idf_deploy>`_.
+In the project of *panda-dev-1a74*, we defined two large kubernetes (GKE) production clusters, **moderatemem** and **highmem**, and one small GKE test cluster, **developmentcluster**. All clusters are deployed using `Terraform <https://learn.hashicorp.com/collections/terraform/gcp-get-started>`_. The deployment details can be found `here <https://github.com/lsst/idf_deploy>`_.
+
+PanDA Queues
+------------
+
+There PanDA queues, **DOMA_LSST_GOOGLE_TEST**, **DOMA_LSST_GOOGLE_TEST_HIMEM**, and **DOMA_LSST_DEV**, are generated accordingly by `The harvester server <https://github.com/HSF/harvester>`_, *ai-idds-02.cern.ch*, corresponding to the GKE clusters, **moderatemem**, **highmem**, and **developmentcluster** respectively. 
+The queues are configured by the files under `the panda-conf github repo <https://github.com/lsst-dm/panda-conf/tree/master>`_: `panda_queueconfig.json <https://github.com/lsst-dm/panda-conf/blob/master/harvester/panda_queueconfig.json>`_, `kube_job.yaml <https://github.com/lsst-dm/panda-conf/blob/master/harvester/kube_job.yaml>`_ and `job_dev_prp_driver-gcs.yaml <https://github.com/lsst-dm/panda-conf/blob/master/harvester/job_dev_prp_driver-gcs.yaml>`_. 
+The json file *panda_queueconfig.json* accounts for the PanDA queue behavior for all PanDA queues on the harvester server. 
+The yaml files configure the pod behavior in the GKE clusters, with the yaml file *kube_job.yaml* for the production queues, **DOMA_LSST_GOOGLE_TEST** and **DOMA_LSST_GOOGLE_TEST_HIMEM**, and the yaml file *job_dev_prp_driver-gcs.yaml* for the test queue **DOMA_LSST_DEV**. The yaml files instruct: 
+
+- what container image is used.
+- what credentials are passed.
+- what commands run in the container on the pod.
+
+For the production queues, the commands inside the container are passed to *"bash -c"*::
+
+ whoami;cd /tmp;export ALRB_noGridMW=NO; wget https://storage.googleapis.com/drp-us-central1-containers/pilots_starter_d3.py; chmod 755 ./pilots_starter_d3.py; ./pilots_starter_d3.py || true
+
+It will download `the pilot package <https://github.com/PanDAWMS/pilot2>`_ and start a new pilot job. 
 
 GCS Buckets
 -----------
@@ -145,7 +163,7 @@ The 3rd bucket in the name of "us.artifacts.*", was automatically created in the
 
 As the bucket name indicates, the bucket **drp-us-central1-containers** accommodate container image files, the pilot-related files and panda queue confiuration files. The other bucket **drp-us-central1-logging** stores the log files of pilot and payload jobs.
 
-The logging bucket is configured in *Uniform* access mode, allowing public access, and allowing a special service account **gcs-access** with the permission of **roles/storage.legacyBucketWriter** and **roles/storage.legacyObjectReader**. The credential json file of this special service account is generated, and passed to the container on the POD nodes, with the environmental variable **GOOGLE_APPLICATION_CREDENTIAL** pointing to the json file.
+The logging bucket is configured in *Uniform* access mode, allowing public access, and allowing a special service account **gcs-access** with the permission of **roles/storage.legacyBucketWriter** and **roles/storage.legacyObjectReader**. The credential json file of this special service account is generated, and passed to the container on the POD nodes via the secret name *gcs-access*, with the environmental variable **GOOGLE_APPLICATION_CREDENTIAL** pointing to the json file.
 
 Job Run Procedure in PanDA
 ==========================
@@ -174,11 +192,12 @@ Job Starting
 Job Running
 -----------
 
-The POD nodes run in the pilot/Rubin container, for example, *us.gcr.io/panda-dev-1a74/centos:7-stack-lsst_distrib-w_2021_21_osg_d3*, as configured in the GKE cluster. The jobs on the POD nodes run the following commands in bash inside the container::
-
- wget https://storage.googleapis.com/drp-us-central1-containers/pilots_starter_d3.py; chmod 755 ./pilots_starter_d3.py; ./pilots_starter_d3.py
-
-It will download `the pilot package <https://github.com/PanDAWMS/pilot2>`_ and run the pilot job. The pilot job will first get the corresponding PanDA queue configuration and the associated storage ddmendpoint (*RSE*) configuration from `the CRIC information system <http://atlas-cric.cern.ch/>`_. The pilot job uses the provided job definition in case of **PUSH** mode, or will get job definition in case of **PULL** mode. Then the pilot job runs the provided payload job. In case of **PULL** mode, one pilot job could get and run multiple payload jobs one by one. After the payload job finishes, the pilot will use `the pilot client for GCS <https://googleapis.dev/python/storage/latest/index.html>`_ write the payload job log file into `the Google Cloud Storage bucket <https://storage.googleapis.com/drp-us-central1-logging/>`_, which is defined in the PanDA queue and RSE configuration. Then the pilot will update the job status including the public access URL to the log files, as shown below:
+The POD nodes run in the pilot/Rubin container, for example, *us.gcr.io/panda-dev-1a74/centos:7-stack-lsst_distrib-w_2021_21_osg_d3*, as configured in the GKE cluster. Each jobs on the POD nodes starst one pilot job inside the container.
+The pilot job will first get the corresponding PanDA queue configuration and the associated storage ddmendpoint (*RSE*) configuration from `the CRIC information system <http://atlas-cric.cern.ch/>`_. 
+The pilot job uses the provided job definition in case of **PUSH** mode, or will get job definition in case of **PULL** mode. 
+Then the pilot job runs the provided payload job. In case of **PULL** mode, one pilot job could get and run multiple payload jobs one by one. 
+After the payload job finishes, the pilot will use `the pilot client for GCS <https://googleapis.dev/python/storage/latest/index.html>`_ write the payload job log file into `the Google Cloud Storage bucket <https://storage.googleapis.com/drp-us-central1-logging/>`_, which is defined in the PanDA queue and RSE configuration. 
+Then the pilot will update the job status including the public access URL to the log files, as shown below:
 
 .. figure:: /_static/Jobs-done.jpg
      :name: Finished PanDA jobs
