@@ -296,10 +296,12 @@ You will get something like:
 .. figure:: /_static/Screenshot-GoogleLogsQuery-20211012.jpg
      :name: Example of Google Logs Query
 
+
 You can change the time period from the top panel. The default is the last hour.
 
-There are more fields available in the query. As you are typing in the query window, it will show up the possible fields for you.
-As for more complicated queur, you can visit `the page Advanced logs queries <https://cloud.google.com/logging/docs/view/advanced-queries>`_.
+There are more fields available in the query. As you are typing in the query window, it will automatically show up the available fields for you.
+
+You can visit `the page Advanced logs queries <https://cloud.google.com/logging/docs/view/advanced-queries>`_ for more details on the query syntax.
 
 Support
 ==========
