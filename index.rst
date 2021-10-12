@@ -261,6 +261,46 @@ Click on the task IDs will go into the details of each task, then click on the n
 under the job status such as *running*, *finished*, or *failed*, will show the list of jobs in that status. You can
 check each job details by following *the PanDA ID number*.
 
+Real-time Logging
+-----------------
+The Rubin jobs on the PanDA queues are also provided with (near)real-time logging on Google Cloud Logging.
+Once the jobs have been running on the PandDA queues, users can check the json format job logs on 
+`the Google Logs Explorer <https://console.cloud.google.com/logs>`_.
+To access it, you need to login with your Google account of **lsst.cloud**, 
+and select the project of **"panda-dev"** (the full name is **panda-dev-1a74**).
+
+On the Google Logs Explorer, you make the query. Please include the logName **Panda-RubinLog** in the query::
+
+ logName="projects/panda-dev-1a74/logs/Panda-RubinLog"
+
+For specific panda task jobs, you can add one field condition on **jsonPayload.TaskID** in the query, such as::
+
+ logName="projects/panda-dev-1a74/logs/Panda-RubinLog"
+ jsonPayload.TaskID="6973"
+
+For a specific individual panda job, you can include the field **jsonPayload.PandaJobID**.
+Or search for a substring "Importing" in the log message::
+
+ logName="projects/panda-dev-1a74/logs/Panda-RubinLog"
+ jsonPayload.TaskID="6973"
+ jsonPayload.message:"Importing"
+
+Or ask for logs containing the field *"MDC.RUN"*::
+
+ logName="projects/panda-dev-1a74/logs/Panda-RubinLog"
+ jsonPayload.TaskID="6969"
+ jsonPayload.MDC.RUN:*
+
+You will get something like:
+
+.. figure:: /_static/Screenshot-GoogleLogsQuery-20211012.jpg
+     :name: Example of Google Logs Query
+
+You can change the time period from the top panel. The default is the last hour.
+
+There are more fields available in the query. As you are typing in the query window, it will show up the possible fields for you.
+As for more complicated queur, you can visit `the page Advanced logs queries <https://cloud.google.com/logging/docs/view/advanced-queries>`_.
+
 Support
 ==========
 There are two lines of support: Rubin-specific and core PanDA components. For front line support we established a
