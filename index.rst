@@ -302,7 +302,7 @@ You can change the time period from the top panel. The default is the last hour.
 And you can also pull down the **Configure** menu (on the middle right) to change what to be displayed on the **SUMMARY** column of the query result. By default, it shows the content of *jsonPayload.message*.
 
 
-There are more fields available in the query. As you are typing in the query window, it will automatically show up the available fields for you.
+There are more fields available in the query. As you are typing in the query window, it will show up autocomplete field options for you.
 
 You can visit `the page of Advanced logs queries <https://cloud.google.com/logging/docs/view/advanced-queries>`_ for more details on the query syntax.
 
