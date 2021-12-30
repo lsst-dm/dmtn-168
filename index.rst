@@ -124,26 +124,58 @@ PanDA Queues o GKE Clusters and GCS Buckets
 GKE Clusters
 ------------
 
-In the project of *panda-dev-1a74*, we defined two kubernetes (GKE) production clusters, **moderatemem** and **highmem**,
-and one small GKE test cluster, **developmentcluster**. All clusters are deployed using [Terraform]_.
-The repository with deployment scripts are available in the correspondent LSST GitHub [deployemnt_project]_.
+In the project of *panda-dev-1a74*, we defined 5 kubernetes (GKE) production clusters
+and one small GKE test cluster (**developmentcluster**). All clusters are deployed using correspondent [Terraform]_
+configuration. The repository with deployment scripts are available in the LSST GitHub [deployemnt_project]_.
 
 PanDA Queues
 ------------
 
-There are 3 PanDA queues: **DOMA_LSST_GOOGLE_TEST**, **DOMA_LSST_GOOGLE_TEST_HIMEM** and **DOMA_LSST_DEV** were
-configured in the [CRIC]_ system corresponding to the GKE clusters: **moderatemem**, **highmem** and
-**developmentcluster** respectively.
+There are 6 PanDA queues were configured in the [CRIC]_ system to match particular job requirements:
 
-The queues configuration files are available in the GitHub repository `the panda-conf github repo <https://github.com/lsst-dm/panda-conf/tree/master>`_:
-`panda_queueconfig.json <https://github.com/lsst-dm/panda-conf/blob/master/harvester/panda_queueconfig.json>`_,
-`kube_job.yaml <https://github.com/lsst-dm/panda-conf/blob/master/harvester/kube_job.yaml>`_ and
-`job_dev_prp_driver-gcs.yaml <https://github.com/lsst-dm/panda-conf/blob/master/harvester/job_dev_prp_driver-gcs.yaml>`_.
+- **DOMA_LSST_GOOGLE_TEST** (GKE cluster: **moderatemem**). This is a cluster for jobs that are not sensitive to node
+  preemption
+  and requiring not more than 3200MB of RAM. The GKE k8s cluster is configured to use *n2-standard-4* machines which
+  offer 4
+  cores with 16GB of total memory. These available CPUs and memory are shared between jobs assigned to particular nodes
+  and system pods which performs the machine level health monitoring, logs delivery, events collection and another
+  Kubernetes service functions. This is why the available computing power is reduced, and the value of 0.85
+  core and 3200MB of RAM per job are
+  experimentally proved values that allow fitting 4 jobs in every cluster node. That values are defined in the
+  Kubernetes job definition YAML, which is used by Harvester in a job submission phase. This cluster lands the majority
+  of jobs in Rubin's payload.
+- **DOMA_LSST_GOOGLE_TEST_HIMEM** (GKE cluster: **highmem**). For jobs requiring more than 3200MB but less than
+  18000MB of RAM, we defined a high memory preemption cluster. This cluster uses *n2-custom-4-43008-ext* machines and
+  can land up to 2 jobs per one node. The machine choice was motivated by the following: the "ext" memory is higher
+  priced than the standard one, and we can't order less than 4 cores for such an amount of memory. Further optimization
+  is possible.
+- **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM**  (GKE cluster: **extra-highmem**). This is a queue for extremely
+  memory-demanding jobs and allows them to allocate 235000MB of memory. If submitting task requests RAM above the
+  **DOMA_LSST_GOOGLE_TEST_HIMEM** capability, the job becomes assigned to this queue.
+- **DOMA_LSST_GOOGLE_MERGE** (GKE cluster: **merge**). This is a special queue to run merge jobs finalizing each
+  submitted workflow. This queue has been excluded from the automatic PanDA brokerage, and tasks are assigned using
+  the queue definition parameter in the Rubin BPS submission YAML. The distinguished property of the correspondent
+  backend cluster is that number of concurrent jobs is very limited. This limitation allows controlling the number of
+  active connections to the Butler Postgres DB.
+- **DOMA_LSST_GOOGLE_TEST_HIMEM_NON_PREEMPT** (GKE cluster: **highmem-non-preempt**). We have experimentally observed
+  that jobs lasting more than 12 hours have a low probability of success due to nodes preemption. This significantly
+  impacts the duration of the workflow run because it takes a few days of running and failing attempts to reach the
+  retry attempt, which will finally survive. That long-lasting retry attempts with a low survival rate also negatively
+  impact the cost-efficiency. To increase the chances for such durable jobs to finish from the first attempt, we
+  created a special non-preemptive queue. In terms of CPU and RAM, the queue is equivalent to the
+  **DOMA_LSST_GOOGLE_TEST_HIMEM**.
+- **DOMA_LSST_DEV**  (GKE cluster: **developmentcluster**). This cluster is used for testing developments before
+  deployment into the production environment.
 
-The json file *panda_queueconfig.json* defined all PanDA queues on the harvester server.
-The yaml files configure the POD behavior in the GKE clusters, with the yaml file *kube_job.yaml* for the production queues,
-**DOMA_LSST_GOOGLE_TEST** and **DOMA_LSST_GOOGLE_TEST_HIMEM**, and the yaml file *job_dev_prp_driver-gcs.yaml*
-for the test queue **DOMA_LSST_DEV**. The yaml files instruct POD:
+The queues configuration files are available in the GitHub repository `the panda-conf github repo <https://github.com/lsst-dm/panda-conf/tree/master>`_.
+
+The json file *panda_queueconfig.json* defined all PanDA queues on the harvester server. The *kube_job.yaml* provides
+Kubernetes job configuration for **DOMA_LSST_GOOGLE_TEST_HIMEM**, **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM**,
+**DOMA_LSST_GOOGLE_MERGE** queues. The *kube_job_moderate.json* defines K8s jobs on **DOMA_LSST_GOOGLE_TEST** and
+*kube_job_non_preempt.yaml* if for **DOMA_LSST_GOOGLE_TEST_HIMEM_NON_PREEMPT**. The yaml file
+*job_dev_prp_driver-gcs.yaml* is for the test queue **DOMA_LSST_DEV**.
+
+The yaml files instruct POD:
 
 - what container image is used.
 - what credentials are passed.
