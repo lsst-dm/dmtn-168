@@ -128,6 +128,18 @@ In the project of *panda-dev-1a74*, we defined 5 kubernetes (GKE) production clu
 and one small GKE test cluster (**developmentcluster**). All clusters are deployed using correspondent [Terraform]_
 configuration. The repository with deployment scripts are available in the LSST GitHub [deployemnt_project]_.
 
+Currently there are 7 GKE clusters::
+
+ % gcloud container clusters list
+ NAME                       LOCATION     MASTER_VERSION    MASTER_IP       MACHINE_TYPE            NODE_VERSION        NUM_NODES  STATUS
+ developmentcluster         us-central1  1.22.8-gke.2200   35.239.22.197   n2-custom-6-8960        1.21.10-gke.1500 *  1          RUNNING
+ extra-highmem              us-central1  1.22.8-gke.2200   35.193.135.73   n2-custom-2-240640-ext  1.21.10-gke.1500 *  4          RUNNING
+ extra-highmem-non-preempt  us-central1  1.22.8-gke.2200   104.198.73.122  n2-custom-2-240640-ext  1.22.8-gke.200 *    2          RUNNING
+ highmem                    us-central1  1.21.11-gke.1100  35.224.254.34   n2-custom-4-43008-ext   1.21.11-gke.900 *   3          RUNNING
+ highmem-non-preempt        us-central1  1.21.11-gke.1100  35.193.45.57    n2-custom-4-43008-ext   1.21.11-gke.1100    5          RUNNING
+ merge                      us-central1  1.22.8-gke.2200   34.70.152.234   n2-standard-4           1.21.10-gke.1500 *  2          RUNNING
+ moderatemem                us-central1  1.21.11-gke.1100  34.69.213.236   n2-standard-4           1.21.5-gke.1302 *   3          RUNNING
+
 PanDA Queues
 ------------
 
@@ -164,6 +176,13 @@ There are 6 PanDA queues were configured in the [CRIC]_ system to match particul
   impact the cost-efficiency. To increase the chances for such durable jobs to finish from the first attempt, we
   created a special non-preemptive queue. In terms of CPU and RAM, the queue is equivalent to the
   **DOMA_LSST_GOOGLE_TEST_HIMEM**.
+- **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM_NON_PREEMPT** (GKE cluster: **extra-highmem-non-preempt**). We have experimentally observed
+  that jobs lasting more than 12 hours have a low probability of success due to nodes preemption. This significantly
+  impacts the duration of the workflow run because it takes a few days of running and failing attempts to reach the
+  retry attempt, which will finally survive. That long-lasting retry attempts with a low survival rate also negatively
+  impact the cost-efficiency. To increase the chances for such durable jobs to finish from the first attempt, we
+  created a special non-preemptive queue. In terms of CPU and RAM, the queue is equivalent to the
+  **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM**.
 - **DOMA_LSST_DEV**  (GKE cluster: **developmentcluster**). This cluster is used for testing developments before
   deployment into the production environment.
 
@@ -172,14 +191,16 @@ The queues configuration files are available in the GitHub repository `the panda
 The json file *panda_queueconfig.json* defined all PanDA queues on the harvester server. The *kube_job.yaml* provides
 Kubernetes job configuration for **DOMA_LSST_GOOGLE_TEST_HIMEM**, **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM**,
 **DOMA_LSST_GOOGLE_MERGE** queues. The *kube_job_moderate.json* defines K8s jobs on **DOMA_LSST_GOOGLE_TEST** and
-*kube_job_non_preempt.yaml* if for **DOMA_LSST_GOOGLE_TEST_HIMEM_NON_PREEMPT**. The yaml file
-*job_dev_prp_driver-gcs.yaml* is for the test queue **DOMA_LSST_DEV**.
+*kube_job_non_preempt.yaml* for **DOMA_LSST_GOOGLE_TEST_HIMEM_NON_PREEMPT** and **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM_NON_PREEMPT**. The yaml file
+*job_dev-prmon.yaml* is for the test queue **DOMA_LSST_DEV**.
 
-The yaml files instruct POD:
+The above "k8s_yaml_file" files instruct POD:
 
 - what container image is used.
 - what credentials are passed.
 - what commands run in the container on the pod.
+
+While the "k8s_config_file" files associate PanDA queues with their corresponding GKE clusters, which be explained in the next subsection.
 
 For the production queues, the commands inside the container are passed to *"bash -c"*::
 
@@ -196,6 +217,15 @@ But a different metadata name should be used i.e. *test-job*, in the yaml file. 
 
 which creates a pod in the job-name of test-job, and enters to the container on that POD to debug, where $podName is
 the POD name found on the command "*kubectl get pods*".
+
+Association of PanDA queues with GKE Clusters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GKE Authentication for PanDA Queues
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+AWS Access Key for S3 Access to GCS Buckets
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 GCS Buckets
 -----------
