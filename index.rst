@@ -258,7 +258,7 @@ Rubin jobs need to access the GCS butler bucket in s3 botocore, hence AWS authen
 
 Currently the AWS access key from the service account **butler-gcs-butler-gcs-data-sa@data-curation-prod-fbdb.iam.gserviceaccount.com** is used as show on `the interoperability setting page <https://console.cloud.google.com/storage/settings;tab=project_access?project=data-curation-prod-fbdb>`_ for the project *data-curation-prod-fbdb*. 
 
-The AWS access key is passed to the POD nodes via `kubernetes secrets <https://kubernetes.io/docs/concepts/configuration/secret/>`_ and is passed as environment variables into the Rubin docker containers. 
+The AWS access key is passed to the POD nodes via `kubernetes secrets <https://kubernetes.io/docs/concepts/configuration/secret/>`_ then as environment variables into the Rubin docker containers. 
 
 GCS Buckets
 -----------
