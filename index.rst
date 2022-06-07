@@ -221,11 +221,44 @@ the POD name found on the command "*kubectl get pods*".
 Association of PanDA queues with GKE Clusters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+In order to associate a new GKE cluster with the corresponding PanDA queue, a "k8s_config_file" file need to be created. Take an example of the cluster "**extra-highmem-non-preempt**"::
+
+ export KUBECONFIG=/data/idds/gcloud_config_rubin/kube_extra_large_mem_non_preempt
+ gcloud container clusters get-credentials --region=us-central1 extra-highmem-non-preempt
+ chmod og+rw $KUBECONFIG
+
+
 GKE Authentication for PanDA Queues
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The environment variable **CLOUDSDK_CONFIG** defines the location of Google Cloud SDK’s config files. 
+On the harvester server machine the environment variable is defined in the file */opt/harvester/etc/rc.d/init.d/panda_harvester-uwsgi*.
+during new wokers creation the harvester server needs to run Google cloud authentication command::
+
+ gcloud config config-helper --format=json
+
+To check which account is used in the Google cloud authentication, just run **gcloud auth list**::
+
+ % cloud auth list  
+    Credentialed Accounts
+ ACTIVE  ACCOUNT
+         padolski@gcp4hep.org
+         spadolski@lsst.cloud
+ *       yesw@lsst.cloud
+
+ To set the active account, run:
+     $ gcloud config set account `ACCOUNT`
+
+To modify the active account, first run the Google cloud authentication "**gcloud auth login**", then run **gcloud config set account `ACCOUNT`**. 
+
 AWS Access Key for S3 Access to GCS Buckets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Rubin jobs need to access the GCS butler bucket in s3 botocore, hence AWS authentication is required. The AWS access secret key is stored in he environment variables **AWS_ACCESS_KEY_ID** and **AWS_SECRET_ACCESS_KEY**.
+
+Currently the AWS access key from the service account **butler-gcs-butler-gcs-data-sa@data-curation-prod-fbdb.iam.gserviceaccount.com** is used as show on `the interoperability setting page <https://console.cloud.google.com/storage/settings;tab=project_access?project=data-curation-prod-fbdb>`_ for the project *data-curation-prod-fbdb*. 
+
+The AWS access key is passed to the POD nodes via `kubernetes secrets <https://kubernetes.io/docs/concepts/configuration/secret/>`_ and is passed as environment variables into the Rubin docker containers. 
 
 GCS Buckets
 -----------
