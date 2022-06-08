@@ -239,7 +239,7 @@ during new wokers creation the harvester server needs to run Google cloud authen
 
 To check which account is used in the Google cloud authentication, just run **gcloud auth list**::
 
- % cloud auth list  
+ % gcloud auth list  
     Credentialed Accounts
  ACTIVE  ACCOUNT
          padolski@gcp4hep.org
