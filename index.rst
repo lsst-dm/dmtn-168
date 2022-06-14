@@ -162,7 +162,8 @@ There are 6 PanDA queues were configured in the [CRIC]_ system to match particul
   priced than the standard one, and we can't order less than 4 cores for such an amount of memory. Further optimization
   is possible.
 - **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM**  (GKE cluster: **extra-highmem**). This is a queue for extremely
-  memory-demanding jobs and allows them to allocate 235000MB of memory. If submitting task requests RAM above the
+  memory-demanding jobs and allows them to allocate 224900MB of memory (there is some memory overhead from the kubernetes components). 
+  If submitting task requests RAM above the
   **DOMA_LSST_GOOGLE_TEST_HIMEM** capability, the job becomes assigned to this queue.
 - **DOMA_LSST_GOOGLE_MERGE** (GKE cluster: **merge**). This is a special queue to run merge jobs finalizing each
   submitted workflow. This queue has been excluded from the automatic PanDA brokerage, and tasks are assigned using
@@ -242,12 +243,15 @@ To check which account is used in the Google cloud authentication, just run **gc
  % gcloud auth list  
     Credentialed Accounts
  ACTIVE  ACCOUNT
-         padolski@gcp4hep.org
+ *       dev-panda-harvester@panda-dev-1a74.iam.gserviceaccount.com
+         gcs-access@panda-dev-1a74.iam.gserviceaccount.com
          spadolski@lsst.cloud
- *       yesw@lsst.cloud
+         yesw@lsst.cloud
 
  To set the active account, run:
      $ gcloud config set account `ACCOUNT`
+
+The GKE authentication account has been changed to use the service account **dev-panda-harvester**.
 
 To modify the active account, first run the Google cloud authentication "**gcloud auth login**", then run **gcloud config set account `ACCOUNT`**. 
 
