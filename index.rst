@@ -162,7 +162,7 @@ There are 6 PanDA queues were configured in the [CRIC]_ system to match particul
   priced than the standard one, and we can't order less than 4 cores for such an amount of memory. Further optimization
   is possible.
 - **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM**  (GKE cluster: **extra-highmem**). This is a queue for extremely
-  memory-demanding jobs and allows them to allocate 224900MB of memory (there is some memory overhead from the kubernetes components). 
+  memory-demanding jobs and allows them to allocate 220000MB of memory (there is some memory overhead from the kubernetes components). 
   If submitting task requests RAM above the
   **DOMA_LSST_GOOGLE_TEST_HIMEM** capability, the job becomes assigned to this queue.
 - **DOMA_LSST_GOOGLE_MERGE** (GKE cluster: **merge**). This is a special queue to run merge jobs finalizing each
