@@ -233,10 +233,32 @@ GKE Authentication for PanDA Queues
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The environment variable **CLOUDSDK_CONFIG** defines the location of Google Cloud SDK’s config files. 
-On the harvester server machine the environment variable is defined in the file */opt/harvester/etc/rc.d/init.d/panda_harvester-uwsgi*.
-during new wokers creation the harvester server needs to run Google cloud authentication command::
+On the harvester server machine the environment variable is defined to */data/idds/gcloud_config* 
+in the file */opt/harvester/etc/rc.d/init.d/panda_harvester-uwsgi*.
+During new wokers creation the harvester server needs to run Google cloud authentication command::
 
  gcloud config config-helper --format=json
+
+Please be aware that all the files and directories under **$CLOUDSDK_CONFIG** should be owned by 
+the account running the harvester service::
+
+ [root@ai-idds-02 etc]# ls -ltA /data/idds/gcloud_config
+ total 68
+ -rw-------.  1 iddssv1 zp  9216 Jul 27 20:55 access_tokens.db
+ -rw-------.  1 iddssv1 zp     5 Jul 27 20:55 gce
+ drwxr-xr-x. 30 iddssv1 zp  4096 Jul 27 02:33 logs
+ -rw-------.  1 iddssv1 zp  5883 Jul 14 09:54 .kube
+ -rw-r--r--.  1 iddssv1 zp    36 Jul 14 09:51 .last_survey_prompt.yaml
+ -rw-r--r--.  1 iddssv1 zp     0 Jun 14 21:06 config_sentinel
+ drwx------.  6 iddssv1 zp  4096 Jun 14 21:06 legacy_credentials
+ -rw-------.  1 iddssv1 zp 14336 Jun 14 21:06 credentials.db
+ drwxr-xr-x.  2 iddssv1 zp  4096 May 26 19:59 configurations
+ -rw-------.  1 iddssv1 zp  4975 Apr 19  2021 .kube_conv
+ -rw-r--r--.  1 iddssv1 zp     7 Aug 26  2020 active_config
+
+On default, gcloud commands write log files into $CLOUDSDK_CONFIG/logs, 
+and will automatically clear log files and directories more than 30 days old, 
+uncless the flag `disable_file_logging <https://cloud.google.com/sdk/gcloud/reference/config/set>`_ is enabled.
 
 To check which account is used in the Google cloud authentication, just run **gcloud auth list**::
 
