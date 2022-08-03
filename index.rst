@@ -140,10 +140,29 @@ Currently there are 7 GKE clusters::
  merge                      us-central1  1.22.8-gke.2200   34.70.152.234   n2-standard-4           1.21.10-gke.1500 *  2          RUNNING
  moderatemem                us-central1  1.21.11-gke.1100  34.69.213.236   n2-standard-4           1.21.5-gke.1302 *   3          RUNNING
 
+You can find the details about the associated machine type in the following way::
+
+ % gcloud compute machine-types describe n2-custom-4-43008-ext
+ Did you mean zone [us-central1-c] for machine type: 
+ [n2-custom-4-43008-ext] (Y/n)?  y
+
+ description: Custom created machine type.
+ guestCpus: 4
+ id: '1735166830592'
+ isSharedCpu: false
+ kind: compute#machineType
+ maximumPersistentDisks: 128
+ maximumPersistentDisksSizeGb: '263168'
+ memoryMb: 43008
+ name: n2-custom-4-43008-ext
+ selfLink: https://www.googleapis.com/compute/v1/projects/panda-dev-1a74/zones/us-central1-c/machineTypes/n2-custom-4-43008-ext
+ zone: us-central1-c
+ 
+ 
 PanDA Queues
 ------------
 
-There are 6 PanDA queues were configured in the [CRIC]_ system to match particular job requirements:
+There are 7 PanDA queues were configured in the [CRIC]_ system to match particular job requirements:
 
 - **DOMA_LSST_GOOGLE_TEST** (GKE cluster: **moderatemem**). This is a cluster for jobs that are not sensitive to node
   preemption
@@ -187,9 +206,29 @@ There are 6 PanDA queues were configured in the [CRIC]_ system to match particul
 - **DOMA_LSST_DEV**  (GKE cluster: **developmentcluster**). This cluster is used for testing developments before
   deployment into the production environment.
 
-The queues configuration files are available in the GitHub repository `the panda-conf github repo <https://github.com/lsst-dm/panda-conf/tree/master>`_.
+Management of the PanDA queues
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The json file *panda_queueconfig.json* defined all PanDA queues on the harvester server. The *kube_job.yaml* provides
+The queues are configured and managed on the harvester server, **ai-idds-02.cern.ch**. While the harvester service is managed 
+by `the uWSGI tool <https://uwsgi-docs.readthedocs.io/en/latest/>`_.
+
+There are 3 main commands in the shell script */opt/harvester/etc/rc.d/init.d/panda_harvester-uwsgi*:
+
+- *start*: to start the harvester service.
+- *stop*: to stop the running harvester service.
+- *reload*: to reload the harvester configuration.
+
+Configuration of the PanDA queues
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The queues configuration files are available in the GitHub repository 
+`the panda-conf github repo <https://github.com/lsst-dm/panda-conf/tree/master>`_. 
+
+While the PanDA queue configuration related with the pilot behavior is defined 
+in `the CRIC system <https://datalake-cric.cern.ch/atlas/pandaqueue/list/>`_, 
+which is downloaded by the pilot wrapper, then is used in pilot jobs.
+
+The harvester json file *panda_queueconfig.json* defines all PanDA queues on the harvester server. The *kube_job.yaml* provides
 Kubernetes job configuration for **DOMA_LSST_GOOGLE_TEST_HIMEM**, **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM**,
 **DOMA_LSST_GOOGLE_MERGE** queues. The *kube_job_moderate.json* defines K8s jobs on **DOMA_LSST_GOOGLE_TEST** and
 *kube_job_non_preempt.yaml* for **DOMA_LSST_GOOGLE_TEST_HIMEM_NON_PREEMPT** and **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM_NON_PREEMPT**. The yaml file
@@ -201,7 +240,7 @@ The above "k8s_yaml_file" files instruct POD:
 - what credentials are passed.
 - what commands run in the container on the pod.
 
-While the "k8s_config_file" files associate PanDA queues with their corresponding GKE clusters, which be explained in the next subsection.
+While the "k8s_config_file" files associate PanDA queues with their corresponding GKE clusters, which will be explained in the next subsection.
 
 For the production queues, the commands inside the container are passed to *"bash -c"*::
 
