@@ -85,11 +85,13 @@ Setup
 We have intensively used results of both ATLAS Google POC [atlas_google_poc]_ and Rubin Google POC
 [rubin_google_poc]_ projects. The following components of the setup were configured specifically for this exercise:
 
-- **Harvester.** A Kubernetes edge service has been configured in the DOMA Harvester instance to handle two clusters
-  deployed on the Google Kubernetes Engine. We distinguished all tasks in the workflow by memory requirements into two
-  groups: high (16 GB per pod) and conventional memory (4GB per pod). Queues are functioning in the PULL mode. This mode
-  continuously provided few instances of pilot idling in the GKE pods and periodically checked for new jobs. The number
-  of running pilots and, accordingly, number of activated nodes dynamically increased to match the number jobs
+- **Harvester.** A Kubernetes edge service has been configured in the DOMA Harvester instance to handle 7 clusters
+  deployed on the Google Kubernetes Engine. We distinguished all tasks in the workflow by memory requirements into three
+  groups: conventional memory (4GB per pod), high (10.5 GB per pod), and extra_high (117.5 GB per pod). 
+  Queues are functioning in the PULL mode for preemptible queues, and in the PUSH mode for non-preemptible queues. 
+  This PULL mode continuously provided few instances of pilot idling in the GKE pods and periodically checked for new jobs
+  util reaching the *timefloor* number of minutes specified in the corresponding PanDA queue. 
+  The number of running pilots and, accordingly, number of activated nodes dynamically increased to match the number jobs
   immediately ready submission on the a queue. Details of Harvester configuration for using Google Cloud Console
   described here [harvester_gke_manual]_.
 - **Pilot.** It is a generic middleware component for grid computing. Instead of submitting payload jobs directly to
@@ -105,9 +107,10 @@ We have intensively used results of both ATLAS Google POC [atlas_google_poc]_ an
   in tasks successors once correspondent predecessor job has finished. PanDA plugin uses iDDS client to submit workflow
   and once it submitted iDDS sends the payload to PanDA server and manages its execution. iDDS provides API for
   workflow management as a whole such as cancellation, retrial.
-- **Google Cloud configuration.**  As it was noted above we defined two kubernetes clusters with different type of
-  machines: *n2-standard-4* with ~4 cores and ~4 GB of memory per core and *n2-custom-4-43008-ext* with ~4
-  cores and ~16 GB of RAM per core. Part of each CPU power and memory are reserved by GKE for management purpose,
+- **Google Cloud configuration.**  As it was noted below we defined 7 kubernetes clusters with different type of
+  machines: *n2-standard-4* with ~4 cores and ~4 GB of memory per core, *n2-custom-4-43008-ext* with ~4
+  cores and ~10.5 GB of RAM per core, *n2-custom-2-240640-ext* with ~2 cores and ~117.5 GB per core, and *n2-custom-6-8960*. 
+  Part of each CPU power and memory are reserved by GKE for management purpose,
   this is why each machine can not accept more than 3 jobs. Disk size for all machines was set to 200 GB with ordinary
   performance type (not SSD). All nodes were preemtible and autoscaling was enabled for both clusters.
   Data is kept on the Google Storage and accessed using gc protocol. All payload executed in the
@@ -140,7 +143,29 @@ Currently there are 7 GKE clusters::
  merge                      us-central1  1.22.8-gke.2200   34.70.152.234   n2-standard-4           1.21.10-gke.1500 *  2          RUNNING
  moderatemem                us-central1  1.21.11-gke.1100  34.69.213.236   n2-standard-4           1.21.5-gke.1302 *   3          RUNNING
 
-You can find the details about the associated machine type in the following way::
+You can find the details about the associated machine type in the following way.
+
+The info for the machine-type **n2-standard-4**::
+
+ % gcloud compute machine-types describe n2-standard-4          
+ Did you mean zone [us-central1-c] for machine type: [n2-standard-4] 
+ (Y/n)?  Y
+
+ creationTimestamp: '1969-12-31T16:00:00.000-08:00'
+ description: 4 vCPUs 16 GB RAM
+ guestCpus: 4
+ id: '901004'
+ imageSpaceGb: 0
+ isSharedCpu: false
+ kind: compute#machineType
+ maximumPersistentDisks: 128
+ maximumPersistentDisksSizeGb: '263168'
+ memoryMb: 16384
+ name: n2-standard-4
+ selfLink: https://www.googleapis.com/compute/v1/projects/panda-dev-1a74/zones/us-central1-c/machineTypes/n2-standard-4
+ zone: us-central1-c
+
+The info for the machine-type **n2-custom-4-43008-ext**::
 
  % gcloud compute machine-types describe n2-custom-4-43008-ext
  Did you mean zone [us-central1-c] for machine type: 
@@ -158,6 +183,23 @@ You can find the details about the associated machine type in the following way:
  selfLink: https://www.googleapis.com/compute/v1/projects/panda-dev-1a74/zones/us-central1-c/machineTypes/n2-custom-4-43008-ext
  zone: us-central1-c
  
+The info for the machine-type **n2-custom-2-240640-ext**::
+
+ % gcloud compute machine-types describe n2-custom-2-240640-ext
+ Did you mean zone [us-central1-c] for machine type: 
+ [n2-custom-2-240640-ext] (Y/n)?  Y
+
+ description: Custom created machine type.
+ guestCpus: 2
+ id: '867583634432'
+ isSharedCpu: false
+ kind: compute#machineType
+ maximumPersistentDisks: 128
+ maximumPersistentDisksSizeGb: '263168'
+ memoryMb: 240640
+ name: n2-custom-2-240640-ext
+ selfLink: https://www.googleapis.com/compute/v1/projects/panda-dev-1a74/zones/us-central1-c/machineTypes/n2-custom-2-240640-ext
+ zone: us-central1-c
  
 PanDA Queues
 ------------
@@ -210,7 +252,7 @@ Management of the PanDA queues
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The queues are configured and managed on the harvester server, **ai-idds-02.cern.ch**. While the harvester service is managed 
-by `the uWSGI tool <https://uwsgi-docs.readthedocs.io/en/latest/>`_.
+by `the uWSGI tool <https://uwsgi-docs.readthedocs.io/en/latest/>`_. The havester source code can be found at `https://github.com/HSF/harvester <https://github.com/HSF/harvester>`_.
 
 There are 3 main commands in the shell script */opt/harvester/etc/rc.d/init.d/panda_harvester-uwsgi*:
 
@@ -231,7 +273,7 @@ A copy of json file for each queue is saved in the github repo `lsst-dm/panda-co
 
 Please note that the parameter **maxrss** in the cric json file specifies the maximum requested memory 
 to start a POd on the corresponding GKE cluster. This number should not exceed the value of parameter **memoryMb** shown 
-on the GKE cluster machine type output, minus some overhead from the kubernetes service on the GKE cluster, otherwise no POD could be started.
+on the GKE cluster machine type output, minus some overhead from the kubernetes components on the GKE cluster, otherwise no POD could be started.
 
 The harvester json file *panda_queueconfig.json* defines all PanDA queues on the harvester server. The *kube_job.yaml* provides
 Kubernetes job configuration for **DOMA_LSST_GOOGLE_TEST_HIMEM**, **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM**,
