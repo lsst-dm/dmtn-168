@@ -227,6 +227,11 @@ The queues configuration files are available in the GitHub repository
 While the PanDA queue configuration related with the pilot behavior is defined 
 in `the CRIC system <https://datalake-cric.cern.ch/atlas/pandaqueue/list/>`_, 
 which is downloaded by the pilot wrapper, then is used in pilot jobs.
+A copy of json file for each queue is saved in the github repo `lsst-dm/panda-conf <https://github.com/lsst-dm/panda-conf/tree/main/data-cric>`_.
+
+Please note that the parameter **maxrss** in the cric json file specifies the maximum requested memory 
+to start a POd on the corresponding GKE cluster. This number should not exceed the value of parameter **memoryMb** shown 
+on the GKE cluster machine type output, minus some overhead from the kubernetes service on the GKE cluster, otherwise no POD could be started.
 
 The harvester json file *panda_queueconfig.json* defines all PanDA queues on the harvester server. The *kube_job.yaml* provides
 Kubernetes job configuration for **DOMA_LSST_GOOGLE_TEST_HIMEM**, **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM**,
