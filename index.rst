@@ -114,7 +114,8 @@ We have intensively used results of both ATLAS Google POC [atlas_google_poc]_ an
   this is why each machine can not accept more than 3 jobs. Disk size for all machines was set to 200 GB with ordinary
   performance type (not SSD). All nodes were preemtible and autoscaling was enabled for both clusters.
   Data is kept on the Google Storage and accessed using gc protocol. All payload executed in the
-  Docker containers. We have deployed a Docker over Docker configuration with outer container responsible for providing
+  Docker containers. We have deployed a Docker over Docker configuration (via sharing the host Docker socket) 
+  with outer container responsible for providing
   the OSG worker node software stack for landing the Pilot and perform X.509 proxy authentication to communicate
   with PanDA server. The inner container contains the standard Rubin software published in the official DockerHub
   repository.
@@ -294,6 +295,19 @@ For the production queues, the commands inside the container are passed to *"bas
  whoami;cd /tmp;export ALRB_noGridMW=NO; wget https://storage.googleapis.com/drp-us-central1-containers/pilots_starter_d3.py; chmod 755 ./pilots_starter_d3.py; ./pilots_starter_d3.py || true
 
 It will download `the pilot package <https://github.com/PanDAWMS/pilot2>`_ and start a new pilot job.
+
+Please note that the inner Rubin SW Docker container and the outer pilot Docker container share with the host Docker socket and Daemon, 
+so the bind mount path between the inner and outer containers must be same on the host machine. 
+For example, in order to bind-mount **logDir=/tmp/panda/${PANDAID}** 
+(as shown in the parameter **runnerCommand** of `bps yaml file <https://github.com/lsst/ctrl_bps_panda/blob/w.2022.32/config/bps_idf.yaml#L72>`_),
+the volume /tmp/panda has already been created on the host machine and bind-mounted onto the outer Docker container, 
+as specified in `queue configuration yaml files <https://github.com/lsst-dm/panda-conf/blob/master/harvester/kube_job.yaml>`_::
+
+      volumes:
+        - name: temp-volume
+          hostPath:
+              path: /tmp/panda
+              type: DirectoryOrCreate
 
 For debugging purpose, a POD node can be created independently with a test yaml file.
 But a different metadata name should be used i.e. *test-job*, in the yaml file. For example::
