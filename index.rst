@@ -330,7 +330,7 @@ GKE Authentication for PanDA Queues
 The environment variable **CLOUDSDK_CONFIG** defines the location of Google Cloud SDK’s config files. 
 On the harvester server machine the environment variable is defined to */data/idds/gcloud_config* 
 in the file */opt/harvester/etc/rc.d/init.d/panda_harvester-uwsgi*.
-During new wokers creation the harvester server needs to run Google cloud authentication command::
+During new wokers creation the harvester server needs to run the Google cloud authentication command::
 
  gcloud config config-helper --format=json
 
@@ -351,7 +351,7 @@ the account running the harvester service::
  -rw-------.  1 iddssv1 zp  4975 Apr 19  2021 .kube_conv
  -rw-r--r--.  1 iddssv1 zp     7 Aug 26  2020 active_config
 
-On default, gcloud commands write log files into $CLOUDSDK_CONFIG/logs, 
+By default, gcloud commands write log files into $CLOUDSDK_CONFIG/logs, 
 and will automatically clear log files and directories more than 30 days old, 
 uncless the flag `disable_file_logging <https://cloud.google.com/sdk/gcloud/reference/config/set>`_ is enabled.
 
@@ -375,9 +375,9 @@ To modify the active account, first run the Google cloud authentication "**gclou
 AWS Access Key for S3 Access to GCS Buckets
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Rubin jobs need to access the GCS butler bucket in s3 botocore, hence AWS authentication is required. The AWS access secret key is stored in he environment variables **AWS_ACCESS_KEY_ID** and **AWS_SECRET_ACCESS_KEY**.
+Rubin jobs need to access the GCS butler bucket in s3 botocore, hence AWS authentication is required. The AWS access secret key is stored in the environment variables **AWS_ACCESS_KEY_ID** and **AWS_SECRET_ACCESS_KEY**.
 
-Currently the AWS access key from the service account **butler-gcs-butler-gcs-data-sa@data-curation-prod-fbdb.iam.gserviceaccount.com** is used as show on `the interoperability setting page <https://console.cloud.google.com/storage/settings;tab=project_access?project=data-curation-prod-fbdb>`_ for the project *data-curation-prod-fbdb*. 
+Currently the AWS access key from the service account **butler-gcs-butler-gcs-data-sa@data-curation-prod-fbdb.iam.gserviceaccount.com** is used as shown on the `interoperability setting page <https://console.cloud.google.com/storage/settings;tab=project_access?project=data-curation-prod-fbdb>`_ for the project *data-curation-prod-fbdb*. 
 
 The AWS access key is passed to the POD nodes via `kubernetes secrets <https://kubernetes.io/docs/concepts/configuration/secret/>`_ in the *data* field which have to be **base64-encoded** strings. 
 Then the AWS access key is passed as environment variables into the Rubin docker containers. 
@@ -410,12 +410,12 @@ Where $projectID is *panda-dev-1a74*.  Then it is passed to the container on the
 Job Run Procedure in PanDA
 ==========================
 
-The PanDA system is overviewed in the following graph:
+The PanDA system can be seen in the following graph:
 
 .. figure:: /_static/PandaSys.png
      :name: PanDA system overview
 
-The detailed description of these components presented in the slides of
+The detailed description of these components is presented in the slides of
 `PanDA status update talk <https://brookhavenlab-my.sharepoint.com/:p:/g/personal/spadolski_bnl_gov/ERnBzu8NO0lHi57ZcS_ESkUBJGl_8qdpKVr4VvG2TICp0A?e=5vaCdw>`_.
 
 Job Submission
@@ -474,7 +474,7 @@ Job Monitoring
 Users can visit the PanDA monitoring server, `https://panda-doma.cern.ch/ <https://panda-doma.cern.ch/>`_, to
 check the workflow/task/job status. The PanDA monitor fetches the payload information from the central database. The
 monitoring provides the drill down functionality starting from a workflow and finishing by a particular job log.
-Click on the task IDs will go into the details of each task, then click on the number
+Clicking on the task IDs will go into the details of each task, then clicking on the number
 under the job status such as *running*, *finished*, or *failed*, will show the list of jobs in that status. You can
 check each job details by following *the PanDA ID number*.
 
