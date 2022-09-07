@@ -202,6 +202,25 @@ The info for the machine-type **n2-custom-2-240640-ext**::
  selfLink: https://www.googleapis.com/compute/v1/projects/panda-dev-1a74/zones/us-central1-c/machineTypes/n2-custom-2-240640-ext
  zone: us-central1-c
  
+Pilot scripts and env
+---------------------
+
+Pilot jobs are started by a pilot shell wrapper. While for GKE clusters, there is another python script, pilot starter, to run the pilot wrapper.
+
+In addition, the **pilot starter** includes some other functions:
+
+- Write out the harvester log (including the log from the pilot starter, the pilot wrapper and the pilot job)
+- Create a real-time logger, analyze/filter the harvester log, and send to the Google Cloud Logging, in the log name: **Panda-WorkerLog**.
+
+All the scripts and the Dockerfile to build the pilot Docker container are available 
+in `the github repo lsst-dm/panda-conf <https://github.com/lsst-dm/panda-conf/tree/main/pilot-scripts-for-GKE>`_.
+
+And the latest script files, and the used pilot package, are stored 
+in `one Rubin GCS bucket drp-us-central1-containers <https://storage.googleapis.com/drp-us-central1-containers/>`_
+
+The built pilot Docker container is stored in Google Artifact Registry (GAR) 
+under **us-central1-docker.pkg.dev/panda-dev-1a74/pilot/centos**.
+
 PanDA Queues
 ------------
 
@@ -285,6 +304,10 @@ The above "k8s_yaml_file" files instruct POD:
 
 While the "k8s_config_file" files associate PanDA queues with their corresponding GKE clusters, which will be explained in the next subsection.
 
+Currently the container image is **us-central1-docker.pkg.dev/panda-dev-1a74/pilot/centos:CentOS7-gar_auth**, with the env to run pilot jobs.
+The Dockerfile to build this pilot container could be found at: 
+`https://github.com/lsst-dm/panda-conf/blob/main/pilot-scripts-for-GKE/pilotContainer/Dockerfile <https://github.com/lsst-dm/panda-conf/blob/main/pilot-scripts-for-GKE/pilotContainer/Dockerfile>`_.
+
 For the production queues, the commands inside the container are passed to *"bash -c"*::
 
  whoami;cd /tmp;export ALRB_noGridMW=NO; wget https://storage.googleapis.com/drp-us-central1-containers/pilots_starter_d3.py; chmod 755 ./pilots_starter_d3.py; ./pilots_starter_d3.py || true
@@ -367,6 +390,12 @@ To check which account is used in the Google cloud authentication, just run **gc
 
  To set the active account, run:
      $ gcloud config set account `ACCOUNT`
+
+To add a new account into the auth list, just run::
+
+ % gcloud auth login
+
+For details, please read `https://cloud.google.com/sdk/gcloud/reference/auth/login <https://cloud.google.com/sdk/gcloud/reference/auth/login>`_.
 
 The GKE authentication account has been changed to use the service account **dev-panda-harvester**.
 
