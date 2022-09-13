@@ -221,6 +221,25 @@ in `one Rubin GCS bucket drp-us-central1-containers <https://storage.googleapis.
 The built pilot Docker container is stored in Google Artifact Registry (GAR) 
 under **us-central1-docker.pkg.dev/panda-dev-1a74/pilot/centos**.
 
+File uploading to GCS
+~~~~~~~~~~~~~~~~~~~~~
+
+Files can uploaded into the Google Cloud Storage bucket **drp-us-central1-containers** through:
+
+- `Google cloud console <https://console.cloud.google.com/storage/browser/drp-us-central1-containers>`_
+- or gsutil command, **gsutils cp**, for example::
+
+ *gsutil cp pilot3_starter-20220913.py gs://drp-us-central1-containers/*
+
+In addition, the uploaded file access should be made **public**. The file access can also be changed 
+through Google Cloud Console, or gsutil command::
+
+ gsutil acl ch -u AllUsers:R gs://drp-us-central1-containers/pilot3_starter-20220913.py
+ 
+More detailed usage can be found at 
+`the page Discover object storage with the gsutil tool <https://cloud.google.com/storage/docs/discover-object-storage-gsutil>`_.
+
+
 PanDA Queues
 ------------
 
