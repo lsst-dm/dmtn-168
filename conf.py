@@ -15,6 +15,7 @@ with open(metadata_path, 'r') as f:
 g = globals()
 g.update(confs)
 
+bibtex_bibfiles = ['local.bib']
 # Add intersphinx inventories as needed
 # http://www.sphinx-doc.org/en/stable/ext/intersphinx.html
 # Example:
