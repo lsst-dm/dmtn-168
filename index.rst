@@ -549,8 +549,8 @@ Clicking on the task IDs will go into the details of each task, then clicking on
 under the job status such as *running*, *finished*, or *failed*, will show the list of jobs in that status. You can
 check each job details by following *the PanDA ID number*.
 
-Real-time Logging
------------------
+Real-time Logging for Payload Jobs
+----------------------------------
 The Rubin jobs on the PanDA queues are also provided with (near)real-time logging on Google Cloud Logging 
 in log name **Panda-RubinLog**.
 Once the jobs have been running on the PandDA queues, users can check the json format job logs on 
