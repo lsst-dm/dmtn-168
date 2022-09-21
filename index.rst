@@ -455,7 +455,7 @@ The credential json file of this special service account is generated in the fol
 Where $projectID is *panda-dev-1a74*.  Then it is passed to the container on the POD nodes via the secret name
 *gcs-access*, with the environmental variable **GOOGLE_APPLICATION_CREDENTIAL** pointing to the json file.
 
-Real-time Logging for pilot jobs
+Real-time Logging for Pilot Jobs
 --------------------------------
 Pilot logs associated with payload jobs are written onto the GCS bucket **drp-us-central1-logging**. 
 We also provide (near)real-time logging for pilot logs on Google Cloud Logging, regardless whether 
