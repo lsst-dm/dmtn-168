@@ -455,6 +455,29 @@ The credential json file of this special service account is generated in the fol
 Where $projectID is *panda-dev-1a74*.  Then it is passed to the container on the POD nodes via the secret name
 *gcs-access*, with the environmental variable **GOOGLE_APPLICATION_CREDENTIAL** pointing to the json file.
 
+Real-time Logging for pilot jobs
+--------------------------------
+Pilot logs associated with payload jobs are written onto the GCS bucket **drp-us-central1-logging**. 
+We also provide (near)real-time logging for pilot logs on Google Cloud Logging, regardless whether 
+the pilot job is idling or running some payload jobs. It could help provide real-time 
+logging of whole pilot jobs as well as the parental pilot wrapper jobs. In addition, it is very useful in case pilot logs 
+could not be written onto the GCS for some reasons such as pilot jobs being killed or problems with GCS.
+
+The real-time logging for pilot jobs is implemented in the pilot starter python script *pilot3_starter.py*, 
+with the class *RealTimeLogger*. The pilot wrapper log (which already icnludes the pilot log itself) file */tmp/wrapper-wid.log*, 
+is parsed and filtered, then written into the log name **Panda-WorkerLog**, different from the log name for payload job logs.
+
+Usually only logs containg a valid time stamp at the beginning is kept and written onto Google Cloud Logging.
+For each log, the hostname is added. And PanDA job ID and job name are also added if available.
+
+Normally the log severity level is just copied from the pilot log level. However, if the payload stderr dump message 
+indicates that the payload failed, the log severity level would be set to ERROR for that msg and also pilot logs 
+containing either *"| add_error_codes"* or *"| perform_initial_payload_error_analysis"*.
+
+For the logs of payload stderr dump, the last 10 non-blank lines (though not containing a time stamp) 
+following the line of *"| add_error_codes"* are also added and appended into the line of *"| add_error_codes"*.
+
+
 Job Run Procedure in PanDA
 ==========================
 
@@ -528,48 +551,27 @@ check each job details by following *the PanDA ID number*.
 
 Real-time Logging
 -----------------
-The Rubin jobs on the PanDA queues are also provided with (near)real-time logging on Google Cloud Logging.
+The Rubin jobs on the PanDA queues are also provided with (near)real-time logging on Google Cloud Logging 
+in log name **Panda-RubinLog**.
 Once the jobs have been running on the PandDA queues, users can check the json format job logs on 
 `the Google Logs Explorer <https://console.cloud.google.com/logs>`_.
-To access it, you need to login with your Google account of **lsst.cloud**, 
-and select the project of **"panda-dev"** (the full name is **panda-dev-1a74**).
 
-On the Google Logs Explorer, you make the query. Please include the logName **Panda-RubinLog** in the query::
+The enviromental variable **REALTIME_LOGFILES** defines the json filename to be produced by Rubin payload jobs.
+A pilot job continuously reads this json file *every 5 seconds*, and sends the found lines together with associated 
+PanDA job ID and task ID.
 
- logName="projects/panda-dev-1a74/logs/Panda-RubinLog"
+The envvar **REALTIME_LOGFILES=payload-log.json** is set in the Kubernetes job yaml file for each queue, 
+undet the *container env* section, as well as 3 other real-time envvars:
 
-For specific panda task jobs, you can add one field condition on **jsonPayload.TaskID** in the query, such as::
+- *USE_REALTIME_LOGGING=yes*
+- *REALTIME_LOGGING_SERVER=google-cloud-logging*
+- *REALTIME_LOGNAME=REALTIME_LOGNAME*
 
- logName="projects/panda-dev-1a74/logs/Panda-RubinLog"
- jsonPayload.TaskID="6973"
+which correspond to the following 3 options in the main pilot python script *pilot.py*:
 
-For a specific individual panda job, you can include the field **jsonPayload.PandaJobID**.
-Or search for a substring "Importing" in the log message::
-
- logName="projects/panda-dev-1a74/logs/Panda-RubinLog"
- jsonPayload.TaskID="6973"
- jsonPayload.message:"Importing"
-
-Or ask for logs containing the field *"MDC.RUN"*::
-
- logName="projects/panda-dev-1a74/logs/Panda-RubinLog"
- jsonPayload.TaskID="6969"
- jsonPayload.MDC.RUN:*
-
-You will get something like:
-
-.. figure:: /_static/Screenshot-GoogleLogsQuery-20211012.jpg
-     :name: Example of Google Logs Query
-
-
-You can change the time period from the top panel. The default is the last hour.
-
-And you can also pull down the **Configure** menu (on the middle right) to change what to be displayed on the **SUMMARY** column of the query result. By default, it shows the content of *jsonPayload.message*.
-
-
-There are more fields available in the query. As you are typing in the query window, it will show up autocomplete field options for you.
-
-You can visit `the page of Advanced logs queries <https://cloud.google.com/logging/docs/view/advanced-queries>`_ for more details on the query syntax.
+- *--use-realtime-logging*
+- *--realtime-logging-server*
+- *--realtime-logname*
 
 Support
 ==========
