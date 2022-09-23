@@ -464,7 +464,7 @@ logging of whole pilot jobs as well as the parental pilot wrapper jobs. In addit
 could not be written onto the GCS for some reasons such as pilot jobs being killed or problems with GCS.
 
 The real-time logging for pilot jobs is implemented in the pilot starter python script *pilot3_starter.py*, 
-with the class *RealTimeLogger*. The pilot wrapper log (which already icnludes the pilot log itself) file */tmp/wrapper-wid.log*, 
+with the class *RealTimeLogger*. The pilot wrapper log (which already includes the pilot log itself) file */tmp/wrapper-wid.log*, 
 is parsed and filtered, then written into the log name **Panda-WorkerLog**, different from the log name for payload job logs.
 
 Usually only logs containg a valid time stamp at the beginning is kept and written onto Google Cloud Logging.
