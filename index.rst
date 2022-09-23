@@ -561,7 +561,7 @@ A pilot job continuously reads this json file *every 5 seconds*, and sends the f
 PanDA job ID and task ID.
 
 The envvar **REALTIME_LOGFILES=payload-log.json** is set in the Kubernetes job yaml file for each queue, 
-undet the *container env* section, as well as 3 other real-time envvars:
+under the *container env* section, as well as 3 other real-time envvars:
 
 - *USE_REALTIME_LOGGING=yes*
 - *REALTIME_LOGGING_SERVER=google-cloud-logging*
