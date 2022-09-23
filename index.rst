@@ -563,7 +563,7 @@ PanDA job ID and task ID.
 The envvar **REALTIME_LOGFILES=payload-log.json** is set in the Kubernetes job yaml file for each queue, 
 under the *container env* section, as well as 3 other real-time envvars:
 
-- *USE_REALTIME_LOGGING=yes*
+- *USE_REALTIME_LOGGING="yes"*
 - *REALTIME_LOGGING_SERVER=google-cloud-logging*
 - *REALTIME_LOGNAME=REALTIME_LOGNAME*
 
