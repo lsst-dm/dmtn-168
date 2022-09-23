@@ -471,7 +471,7 @@ Usually only logs containg a valid time stamp at the beginning is kept and writt
 For each log, the hostname is added. And PanDA job ID and job name are also added if available.
 
 Normally the log severity level is just copied from the pilot log level. However, if the payload stderr dump message 
-indicates that the payload failed, the log severity level would be set to ERROR for that msg and also pilot logs 
+indicates that the payload failed, the log severity level would be set to ERROR for that message and also pilot logs 
 containing either *"| add_error_codes"* or *"| perform_initial_payload_error_analysis"*.
 
 For the logs of payload stderr dump, the last 10 non-blank lines (though not containing a time stamp) 
