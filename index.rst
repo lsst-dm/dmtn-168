@@ -565,7 +565,7 @@ under the *container env* section, as well as 3 other real-time envvars:
 
 - *USE_REALTIME_LOGGING="yes"*
 - *REALTIME_LOGGING_SERVER="google-cloud-logging"*
-- *REALTIME_LOGNAME=REALTIME_LOGNAME*
+- *REALTIME_LOGNAME="Panda-RubinLog"*
 
 which correspond to the following 3 options in the main pilot python script *pilot.py*:
 
