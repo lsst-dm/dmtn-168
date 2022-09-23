@@ -472,10 +472,10 @@ For each log, the hostname is added. And PanDA job ID and job name are also adde
 
 Normally the log severity level is just copied from the pilot log level. However, if the payload stderr dump message 
 indicates that the payload failed, the log severity level would be set to ERROR for that message and also pilot logs 
-containing either *"| add_error_codes"* or *"| perform_initial_payload_error_analysis"*.
+containing *"| payload stderr dump"*, *"| add_error_codes"*, or *"| perform_initial_payload_error_analysis"*.
 
 For the logs of payload stderr dump, the last 10 non-blank lines (though not containing a time stamp) 
-following the line of *"| add_error_codes"* are also added and appended into the line of *"| add_error_codes"*.
+following the line of *"| payload stderr dump"* are also appended into that log.
 
 
 Job Run Procedure in PanDA
