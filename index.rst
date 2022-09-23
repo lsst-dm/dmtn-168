@@ -571,7 +571,7 @@ which correspond to the following 3 options in the main pilot python script *pil
 
 - ``--use-realtime-logging``
 - ``--realtime-logging-server``
-- *--realtime-logname*
+- ``--realtime-logname``  
 
 Support
 ==========
