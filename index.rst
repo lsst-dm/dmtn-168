@@ -570,7 +570,7 @@ under the *container env* section, as well as 3 other real-time envvars:
 which correspond to the following 3 options in the main pilot python script *pilot.py*:
 
 - ``--use-realtime-logging``
-- *--realtime-logging-server*
+- ``--realtime-logging-server``
 - *--realtime-logname*
 
 Support
