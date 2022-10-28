@@ -243,44 +243,8 @@ More detailed usage can be found at
 PanDA Queues
 ------------
 
-There are 7 PanDA queues configured in the [CRIC]_ system to match particular job requirements:
-
-- **DOMA_LSST_GOOGLE_TEST** (GKE cluster: **moderatemem**). This is a cluster for jobs that are not sensitive to node
-  preemption
-  and require not more than 3200MB of RAM. The GKE k8s cluster is configured to use *n2-standard-4* machines which
-  offer 4
-  cores with 16GB of total memory. These available CPUs and memory are shared between jobs assigned to particular nodes
-  and system pods which perform the machine level health monitoring, logs delivery, events collection and another
-  Kubernetes service functions. This is why the available computing power is reduced, and the value of 0.85
-  core and 3200MB of RAM per job are
-  experimentally proved values that allow fitting 4 jobs in every cluster node. These values are defined in the
-  Kubernetes job definition YAML, which is used by Harvester in the job submission phase. This cluster lands the majority
-  of jobs in Rubin's payload.
-- **DOMA_LSST_GOOGLE_TEST_HIMEM** (GKE cluster: **highmem**). For jobs requiring more than 3200MB but less than
-  18000MB of RAM, we defined a high memory preemption cluster. This cluster uses *n2-custom-4-43008-ext* machines and
-  can land up to 2 jobs per one node. The machine choice was motivated by the following: the "ext" memory is higher
-  priced than the standard one, and we can't order less than 4 cores for such an amount of memory. Further optimization
-  is possible.
-- **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM**  (GKE cluster: **extra-highmem**). This is a queue for extremely
-  memory-demanding jobs and allows them to allocate 220000MB of memory (there is some memory overhead from the kubernetes components). 
-  If a submitting task requests RAM above the
-  **DOMA_LSST_GOOGLE_TEST_HIMEM** capability, the job becomes assigned to this queue.
-- **DOMA_LSST_GOOGLE_MERGE** (GKE cluster: **merge**). This is a special queue to run merge jobs finalizing each
-  submitted workflow. This queue has been excluded from the automatic PanDA brokerage, and tasks are assigned using
-  the queue definition parameter in the Rubin BPS submission YAML. The distinguished property of the correspondent
-  backend cluster is that the number of concurrent jobs is very limited. This limitation allows controlling the number of
-  active connections to the Butler Postgres DB.
-- **DOMA_LSST_GOOGLE_TEST_HIMEM_NON_PREEMPT** (GKE cluster: **highmem-non-preempt**). We have experimentally observed
-  that jobs lasting more than 12 hours have a low probability of success due to nodes preemption. This significantly
-  impacts the duration of the workflow run because it takes a few days of running and failing attempts to reach the
-  retry attempt, which will finally survive. That long-lasting retry attempts with a low survival rate also negatively
-  impacts the cost-efficiency. To increase the chances for such durable jobs to finish from the first attempt, we
-  created a special non-preemptive queue. In terms of CPU and RAM, the queue is equivalent to the
-  **DOMA_LSST_GOOGLE_TEST_HIMEM**.
-- **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM_NON_PREEMPT** (GKE cluster: **extra-highmem-non-preempt**). Same use case as the queue above. In terms of CPU and RAM, the queue is equivalent to the
-  **DOMA_LSST_GOOGLE_TEST_EXTRA_HIMEM**.
-- **DOMA_LSST_DEV**  (GKE cluster: **developmentcluster**). This cluster is used for testing developments before
-  deploying them into the production environment.
+The PanDA queues are configured in the [CRIC]_ system to match particular job requirements. For the actual list of PanDA queues, 
+please refer to the `PanDA user guide <https://panda.lsst.io/>`_.
 
 Management of the PanDA queues
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
